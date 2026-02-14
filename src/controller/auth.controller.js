@@ -8,7 +8,7 @@ const register = async (req, res) => {
   const password = await bcrypt.hash(req.body.password, authConfig.saltRounds);
 
   const insertId = await authModel.registerUser(email, password);
-  console.log(1);
+
   const accessToken = await authService.signAccessToken(insertId);
   const newUser = {
     id: insertId,
