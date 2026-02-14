@@ -28,8 +28,8 @@ const count = async () => {
 };
 const findAsEmail = async (email) => {
   try {
-    const [rows] = await db.query(`Select * from users where email = ?`, [
-      email,
+    const [rows] = await db.query(`Select * from users where email like ?`, [
+      `%${email}%`,
     ]);
     return rows;
   } catch (error) {

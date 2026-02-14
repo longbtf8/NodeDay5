@@ -11,11 +11,14 @@ function responseFormat(req, res, next) {
   };
   res.error = (status = 500, error = null, message) => {
     console.log(message, status, error);
-    res.status(status).json({
+    const payload = {
       status: "error",
-      error,
       message,
-    });
+    };
+    if (error) {
+      payload.error = error;
+    }
+    res.status(status).json(payload);
   };
   next();
 }
