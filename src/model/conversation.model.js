@@ -1,8 +1,9 @@
 const db = require("@/config/database");
+const { user } = require("@/config/db.config");
 
-const createConversation = async (name, type, participant_ids) => {
+const createConversation = async (name, type, participant_ids, user_id) => {
   try {
-    const created_by = participant_ids?.[0];
+    const created_by = user_id;
 
     const [{ insertId }] = await db.query(
       `INSERT INTO CONVERSATIONS (created_by,name,type) VALUES (?,?,?)`,
@@ -41,9 +42,19 @@ const getMyConversations = async (userId) => {
 };
 const findConversation = async (userId) => {
   try {
-    const [rows] = await db.query("SELECT * FROM conversations WHERE id = ?", [
+    const [rows] = await db.query("SELECT * FROM conversations WHERE id = ? ", [
       userId,
     ]);
+    return rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// tìm trong bảng user
+const findUserById = async (userId) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
     return rows[0];
   } catch (error) {
     console.log(error);
@@ -104,7 +115,19 @@ ORDER BY messages.created_at ASC;
 `,
       [conversationId],
     );
-    return rows;
+
+    const formattedRows = rows.map((row) => ({
+      id: row.id,
+      conversation_id: row.conversation_id,
+      sender: {
+        id: row.sender_id,
+        email: row.sender_email,
+      },
+      content: row.content,
+      created_at: row.created_at,
+    }));
+
+    return formattedRows;
   } catch (error) {
     console.log(error);
   }
@@ -117,4 +140,5 @@ module.exports = {
   checkUserInConversation,
   createMessage,
   getMessageByConversation,
+  findUserById,
 };

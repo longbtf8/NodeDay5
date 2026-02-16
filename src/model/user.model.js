@@ -10,7 +10,7 @@ const findAll = async (limit, offset, condition = {}) => {
     .join(" and ");
   try {
     const [rows] = await db.query(
-      `Select * from users ${queryStr ? `where ${queryStr}` : ""} LI222MIT ? offset ?`,
+      `Select * from users ${queryStr ? `where ${queryStr}` : ""} LIMIT ? offset ?`,
       [Number(limit), Number(offset)],
     );
     return rows;

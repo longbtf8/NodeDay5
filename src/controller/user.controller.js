@@ -24,7 +24,7 @@ const findEmail = async (req, res) => {
   if (!email) {
     return res.error(400, null, "Not Found");
   }
-  const users = await userService.findUserAsEmail(email);
+  const users = await userService.findUserAsEmail(email, req.currentUser.id);
   if (users) {
     return res.success(users);
   }

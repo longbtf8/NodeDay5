@@ -6,6 +6,8 @@ const createConversation = async (req, res) => {
     type = "direct",
     participant_ids = [],
   } = req.body;
+  const userId = req.currentUser.id;
+
   const normalizedType = type.toLowerCase();
   //  Kiểm tra có phải mảng không
   if (!Array.isArray(participant_ids) || participant_ids.length === 0) {
@@ -30,6 +32,7 @@ const createConversation = async (req, res) => {
     name,
     type,
     participant_ids,
+    userId,
   );
   if (!insertId) {
     return res.error(400, null, "Create Fail");
@@ -38,6 +41,8 @@ const createConversation = async (req, res) => {
     id: insertId,
     type,
     name,
+    created_by: userId,
+    created_at: new Date(),
   });
 };
 const getMyConversations = async (req, res) => {
@@ -60,7 +65,6 @@ const addMember = async (req, res) => {
   }
   const conversation = await conversationModel.findConversation(conversationId);
 
-  console.log(conversation);
   if (!conversation) {
     return res.error(404, null, "Không tìm thấy cuộc hội thoại");
   }
@@ -72,6 +76,16 @@ const addMember = async (req, res) => {
       null,
       "Chỉ có thể thêm thành viên vào cuộc trò chuyện nhóm",
     );
+  }
+  const userExists = await conversationModel.findUserById(user_id);
+  if (!userExists) {
+    return res.error(404, null, "User không tồn tại");
+  }
+
+  const userExistsInConversation =
+    await conversationModel.checkUserInConversation(conversationId, user_id);
+  if (userExistsInConversation) {
+    return res.error(400, null, "User đã có trong cuộc trò chuyện ");
   }
   // Thực hiện thêm thành viên
   await conversationModel.addParticipant(conversationId, user_id);
@@ -115,11 +129,8 @@ const sendMessage = async (req, res) => {
 };
 const getMessage = async (req, res) => {
   const conversationId = req.params.id;
-  const { content } = req.body;
   const senderId = req.currentUser.id;
-  if (!content) {
-    return res.error(400, null, "Nội dung tin nhắn không được để trống");
-  }
+
   const membership = await conversationModel.checkUserInConversation(
     conversationId,
     senderId,

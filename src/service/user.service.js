@@ -5,9 +5,11 @@ class userService {
   constructor() {
     paginationService.apply(this);
   }
-  async findUserAsEmail(email) {
-    const user = await UserModel.findAsEmail(email);
-    return user;
+  async findUserAsEmail(email, currentUserId) {
+    const users = await UserModel.findAsEmail(email);
+    // Loại bỏ user hiện tại
+    const filteredUsers = users.filter((u) => u.id !== currentUserId);
+    return filteredUsers;
   }
 }
 module.exports = new userService();
