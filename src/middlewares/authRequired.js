@@ -1,6 +1,5 @@
 const db = require("@/config/database");
 const authService = require("@/service/auth.service");
-const jwt = require("jsonwebtoken");
 
 async function authRequired(req, res, next) {
   const accessToken = req.headers?.authorization?.slice(6)?.trim();
